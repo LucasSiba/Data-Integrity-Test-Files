@@ -11,22 +11,22 @@
 int
 main(void)
 {
-   int fd;
-
-   int fileSizes[] = {64, 128, 1024, (4 * 1024), (64 * 1024)};
+   int fileSizes[] = {64, 128, 1024, (4 * 1024), (8 * 1024), (64 * 1024), (128 * 1024)};
    
    for (int i = 0; i < (int)(sizeof(fileSizes)/sizeof(fileSizes[0])); i++) {
 
        char fileName[PATH_MAX];
-       snprintf(fileName, sizeof(fileName), "%d-%d.txt", fileSizes[i], i);
+       snprintf(fileName, sizeof(fileName), "%d.txt", fileSizes[i]);
 
-       fd = open(fileName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+       int fd = open(fileName, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR);
        if (fd == 0) {
 	  printf("open(): %s\n", strerror(errno));
 	  exit(1);             
        }
 
-       dprintf(fd, "foo");
+       for (int j = 0; j < fileSizes[i]; j += 64) {
+           dprintf(fd, "|_=%07d=_ABCDEFGHIJKLMNOPQRSTUVWXYZ_-_0123456789_=%07d=_|\n", j, j+64);
+       }
 
        close(fd);
    }
